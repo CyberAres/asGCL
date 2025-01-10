@@ -138,15 +138,14 @@ class ASGCL(GeneralRecommender):
         wei *= 2
         return wei
 
-    def Att(self,input):
-        att=input
-        att=F.adaptive_ave_pool1d(att,1)
-        att=nn.relu(att)
-
-
-
+    def Score(self,input):
+        a=input
+        a=F.adaptive_avg_pool1d(att,1)
+        a=nn.Liner(att)
+        a=nn.ReLU(att,inplace=True)
+        a=nn.Liner(att)
+        a=nn.Sigmoid(att)
         
-    
 
     def co_action(self, all_emb, unit_num=3, order=2):
         input = all_emb
