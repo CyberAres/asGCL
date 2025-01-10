@@ -29,11 +29,11 @@ class MyLinearLayer(torch.nn.Module):
         #print("mylinearlayer output_size:", y.size())
         return y
 
-class LAGCL(GeneralRecommender):
+class ASGCL(GeneralRecommender):
     input_type = InputType.PAIRWISE
 
     def __init__(self, config, dataset):
-        super(IMAGCN, self).__init__(config, dataset)
+        super(ASGCL, self).__init__(config, dataset)
 
         # load dataset info
         self.interaction_matrix = dataset.inter_matrix(form='coo').astype(np.float32)
@@ -138,6 +138,16 @@ class LAGCL(GeneralRecommender):
         wei *= 2
         return wei
 
+    def Att(self,input):
+        att=input
+        att=F.adaptive_ave_pool1d(att,1)
+        att=nn.relu(att)
+
+
+
+        
+    
+
     def co_action(self, all_emb, unit_num=3, order=2):
         input = all_emb
         for o in range(order-1):
@@ -172,35 +182,6 @@ class LAGCL(GeneralRecommender):
         user_all_embeddings, item_all_embeddings = torch.split(lightgcn_all_embeddings, [self.n_users, self.n_items])
         return user_all_embeddings, item_all_embeddings
 
-    def calculate_loss(self, interaction):
-        # clear the storage variable when training
-        if self.restore_user_e is not None or self.restore_item_e is not None:
-            self.restore_user_e, self.restore_item_e = None, None
-
-        user = interaction[self.USER_ID]
-        pos_item = interaction[self.ITEM_ID]
-        neg_item = interaction[self.NEG_ITEM_ID]
-
-        user_all_embeddings, item_all_embeddings = self.forward()
-        u_embeddings = user_all_embeddings[user]
-        pos_embeddings = item_all_embeddings[pos_item]
-        neg_embeddings = item_all_embeddings[neg_item]
-
-        # calculate BPR Loss
-        pos_scores = torch.mul(u_embeddings, pos_embeddings).sum(dim=1)
-        neg_scores = torch.mul(u_embeddings, neg_embeddings).sum(dim=1)
-        mf_loss = self.mf_loss(pos_scores, neg_scores)
-
-        # calculate BPR Loss
-        u_ego_embeddings = self.user_embedding(user)
-        pos_ego_embeddings = self.item_embedding(pos_item)
-        neg_ego_embeddings = self.item_embedding(neg_item)
-
-        reg_loss = self.reg_loss(u_ego_embeddings, pos_ego_embeddings, neg_ego_embeddings, require_pow=self.require_pow)
-
-        loss = mf_loss + self.reg_weight * reg_loss
-
-        return loss
 
     def predict(self, interaction):
         user = interaction[self.USER_ID]
@@ -230,9 +211,9 @@ class LAGCL(GeneralRecommender):
 
 
 
-class XSimGCL(LightGCN):
+class SSCL(LightGCN):
     def __init__(self, config, dataset):
-        super(XSimGCL, self).__init__(config, dataset)
+        super(SSCL, self).__init__(config, dataset)
 
         self.cl_rate = config['lambda']
         self.eps = config['eps']
