@@ -140,11 +140,17 @@ class ASGCL(GeneralRecommender):
 
     def Score(self,input):
         a=input
-        a=F.adaptive_avg_pool1d(att,1)
-        a=nn.Liner(att)
-        a=nn.ReLU(att,inplace=True)
-        a=nn.Liner(att)
-        a=nn.Sigmoid(att)
+        a=F.adaptive_avg_pool1d(a,1)
+        a=nn.Liner(a)
+        a=nn.ReLU(a,inplace=True)
+        a=nn.Liner(a)
+        a=nn.Sigmoid(a)
+        return a
+
+    def NewEmb(self,oriEmb):
+        for i in oriEmb.length
+            newEmb=torch.mul(Score[i],oriEmb[i])
+        return newEmb
         
 
     def co_action(self, all_emb, unit_num=3, order=2):
